@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bdownzy Animation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Pacifico&family=Press+Start+2P&family=Rubik+Glitch&family=Silkscreen&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: background 1.5s ease;
+        }
+        
+        .container {
+            text-align: center;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            transition: all 1.5s ease;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            opacity: 0.8;
+            transition: all 1.5s ease;
+        }
+        
+        /* Efeitos de animação */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+        
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(-5px, -5px); }
+            60% { transform: translate(5px, 5px); }
+            80% { transform: translate(5px, -5px); }
+            100% { transform: translate(0); }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes rainbow {
+            0% { color: red; }
+            14% { color: orange; }
+            28% { color: yellow; }
+            42% { color: green; }
+            57% { color: blue; }
+            71% { color: indigo; }
+            85% { color: violet; }
+            100% { color: red; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Bdownzy</h1>
+        <p class="subtitle">create by Jayπ</p>
+    </div>
+
+    <script>
+        const title = document.querySelector('.title');
+        const subtitle = document.querySelector('.subtitle');
+        const body = document.querySelector('body');
+        
+        // Lista de fontes
+        const fonts = [
+            "'Press Start 2P', cursive",
+            "'Rubik Glitch', cursive",
+            "'Silkscreen', cursive",
+            "'Pacifico', cursive",
+            "'Montserrat', sans-serif"
+        ];
+        
+        // Lista de animações
+        const animations = [
+            { name: 'bounce', duration: '1s', timing: 'ease-in-out', iteration: 'infinite' },
+            { name: 'glitch', duration: '0.5s', timing: 'linear', iteration: 'infinite' },
+            { name: 'rotate', duration: '3s', timing: 'linear', iteration: 'infinite' },
+            { name: 'pulse', duration: '2s', timing: 'ease-in-out', iteration: 'infinite' },
+            { name: 'rainbow', duration: '5s', timing: 'linear', iteration: 'infinite' }
+        ];
+        
+        // Lista de gradientes
+        const gradients = [
+            'linear-gradient(45deg, #ff9a9e, #fad0c4)',
+            'linear-gradient(45deg, #a18cd1, #fbc2eb)',
+            'linear-gradient(45deg, #f6d365, #fda085)',
+            'linear-gradient(45deg, #84fab0, #8fd3f4)',
+            'linear-gradient(45deg, #a6c1ee, #fbc2eb)',
+            'linear-gradient(45deg, #ffc3a0, #ffafbd)',
+            'linear-gradient(45deg, #2193b0, #6dd5ed)'
+        ];
+        
+        let currentAnimation = 0;
+        let currentFont = 0;
+        let currentGradient = 0;
+        
+        function changeAnimation() {
+            // Remove todas as animações anteriores
+            title.style.animation = 'none';
+            subtitle.style.animation = 'none';
+            
+            // Aplica nova animação
+            setTimeout(() => {
+                const anim = animations[currentAnimation];
+                title.style.animation = `${anim.name} ${anim.duration} ${anim.timing} ${anim.iteration}`;
+                
+                // Animação diferente para o subtítulo
+                const subAnim = animations[(currentAnimation + 1) % animations.length];
+                subtitle.style.animation = `${subAnim.name} ${subAnim.duration} ${subAnim.timing} ${subAnim.iteration}`;
+            }, 10);
+            
+            currentAnimation = (currentAnimation + 1) % animations.length;
+        }
+        
+        function changeFont() {
+            title.style.fontFamily = fonts[currentFont];
+            subtitle.style.fontFamily = fonts[(currentFont + 1) % fonts.length];
+            
+            currentFont = (currentFont + 1) % fonts.length;
+        }
+        
+        function changeBackground() {
+            body.style.background = gradients[currentGradient];
+            body.style.backgroundSize = '400% 400%';
+            
+            currentGradient = (currentGradient + 1) % gradients.length;
+        }
+        
+        // Inicia as mudanças
+        changeAnimation();
+        changeFont();
+        changeBackground();
+        
+        // Configura intervalos para mudanças automáticas
+        setInterval(changeAnimation, 5000);
+        setInterval(changeFont, 7000);
+        setInterval(changeBackground, 9000);
+        
+        // Adiciona animações via JavaScript para evitar problemas de renderização inicial
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes bounce {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-30px); }
+                }
+                
+                @keyframes glitch {
+                    0% { transform: translate(0); }
+                    20% { transform: translate(-5px, 5px); }
+                    40% { transform: translate(-5px, -5px); }
+                    60% { transform: translate(5px, 5px); }
+                    80% { transform: translate(5px, -5px); }
+                    100% { transform: translate(0); }
+                }
+                
+                @keyframes rotate {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.1); }
+                }
+                
+                @keyframes rainbow {
+                    0% { color: red; }
+                    14% { color: orange; }
+                    28% { color: yellow; }
+                    42% { color: green; }
+                    57% { color: blue; }
+                    71% { color: indigo; }
+                    85% { color: violet; }
+                    100% { color: red; }
+                }
+            </style>
+        `);
+    </script>
+</body>
+</html>
