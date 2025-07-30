@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://bdownzyb.onrender.com/api';
+const API_BASE_URL = 'https://bdownzyb.onrender.com';
 
 document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
