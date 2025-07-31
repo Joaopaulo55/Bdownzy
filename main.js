@@ -98,23 +98,13 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingModal.classList.remove('hidden');
             btnText.textContent = "Processando";
             
-            // Try with primary method first
-            let response = await fetch(`${API_BASE_URL}/convert`, {
+            const response = await fetch(`${API_BASE_URL}/api/convert`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url })
             });
             
-            // If primary fails, try fallback
-            if (!response.ok) {
-                response = await fetch(`${API_BASE_URL}/convert-fallback`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url })
-                });
-                
-                if (!response.ok) throw new Error('Não foi possível processar o vídeo');
-            }
+            if (!response.ok) throw new Error('Não foi possível processar o vídeo');
             
             const data = await response.json();
             currentVideoInfo = data;
@@ -193,8 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Redirect to ad first
             await redirectToAd();
             
-            // Start download
-            const downloadUrl = `${API_BASE_URL}/download?id=${currentVideoInfo.id}&format=${format.itag}`;
+            // Start download (CORREÇÃO AQUI - adicionado /api/)
+            const downloadUrl = `${API_BASE_URL}/api/download?id=${currentVideoInfo.id}&format=${format.itag}`;
             window.open(downloadUrl, '_blank');
             
             showNotification('Download iniciado!', 'success');
