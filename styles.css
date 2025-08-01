@@ -320,6 +320,8 @@ body {
   gap: 1rem;
 }
 
+/* Substitua as classes .download-btn existentes por estas: */
+
 .download-btn {
   display: flex;
   align-items: center;
@@ -332,19 +334,22 @@ body {
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.download-btn.video {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-}
-
-.download-btn.audio {
-  background: linear-gradient(135deg, var(--success), #059669);
+  background: linear-gradient(135deg, var(--success), #059669) !important;
 }
 
 .download-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #059669, #047857) !important;
+}
+
+/* Remova estas classes específicas se existirem */
+.download-btn.video {
+  background: linear-gradient(135deg, var(--success), #059669) !important;
+}
+
+.download-btn.audio {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
 }
 
 /* Anúncios */
