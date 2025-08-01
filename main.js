@@ -10,18 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const videoTitle = document.getElementById('videoTitle');
     const formatOptions = document.getElementById('formatOptions');
     const loadingModal = document.getElementById('loadingModal');
-    const toggleSearch = document.getElementById('toggleSearch');
-    const searchContainer = document.getElementById('searchContainer');
-    const searchQuery = document.getElementById('searchQuery');
-    const searchBtn = document.getElementById('searchBtn');
-    const searchResults = document.getElementById('searchResults');
     const notification = document.getElementById('notification');
     const notificationMessage = document.getElementById('notificationMessage');
     const themeToggleBtns = document.querySelectorAll('.toggle-btn');
 
     // State
     let currentVideoInfo = null;
-    let debounceTimer;
 
     // Theme Toggle
     themeToggleBtns.forEach(btn => {
@@ -44,58 +38,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event Listeners
     actionBtn.addEventListener('click', processVideo);
-    videoUrlInput.addEventListener('input', handleUrlInput);
-    searchBtn.addEventListener('click', searchYouTube);
-    searchQuery.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') searchYouTube();
+    videoUrlInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') processVideo();
     });
-    toggleSearch.addEventListener('click', toggleSearchContainer);
-
-    // Auto-process when valid URL is detected
-    function handleUrlInput() {
-        const url = videoUrlInput.value.trim();
-        
-        // Clear previous debounce
-        clearTimeout(debounceTimer);
-        
-        // Validate URL format
-        if (isValidUrl(url)) {
-            btnText.textContent = "Processando...";
-            actionBtn.classList.add('processing');
-            
-            // Debounce to avoid rapid firing
-            debounceTimer = setTimeout(() => {
-                processVideo();
-            }, 800);
-        } else {
-            btnText.textContent = "Ir";
-            actionBtn.classList.remove('processing');
-        }
-    }
-
-    function isValidUrl(url) {
-        const patterns = [
-            /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/,
-            /^(https?:\/\/)?(www\.)?(facebook\.com|fb\.watch)\/.+/,
-            /^(https?:\/\/)?(www\.)?(tiktok\.com)\/.+/,
-            /^(https?:\/\/)?(www\.)?(instagram\.com)\/.+/
-        ];
-        
-        return patterns.some(pattern => pattern.test(url));
-    }
 
     async function processVideo() {
         const url = videoUrlInput.value.trim();
         
-        if (!isValidUrl(url)) {
+        if (!url) {
             showNotification('Por favor, insira um URL válido', 'error');
-            btnText.textContent = "Ir";
-            actionBtn.classList.remove('processing');
             return;
         }
 
         try {
-            loadingModal.classList.remove('hidden');
+            loadingModal.classList.add('show');
             btnText.textContent = "Processando";
             
             const response = await fetch(`${API_BASE_URL}/api/convert`, {
@@ -104,7 +60,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ url })
             });
             
-            if (!response.ok) throw new Error('Não foi possível processar o vídeo');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Não foi possível processar o vídeo');
+            }
             
             const data = await response.json();
             currentVideoInfo = data;
@@ -115,16 +74,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
             showNotification(error.message || 'Erro ao processar o vídeo', 'error');
         } finally {
-            loadingModal.classList.add('hidden');
+            loadingModal.classList.remove('show');
             btnText.textContent = "Concluído";
             setTimeout(() => {
-                if (isValidUrl(videoUrlInput.value.trim())) {
-                    btnText.textContent = "Novo";
-                } else {
-                    btnText.textContent = "Ir";
-                }
-                actionBtn.classList.remove('processing');
-            }, 1000);
+                btnText.textContent = "Ir";
+            }, 2000);
         }
     }
 
@@ -158,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             btn.innerHTML = `
-                <span>${format.quality} (${format.type.toUpperCase()})</span>
+                <span>${format.quality} (${format.type.toUpperCase()})${format.size ? ` - ${format.size}` : ''}</span>
                 <i class="fas fa-download ml-2"></i>
             `;
             
@@ -167,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Show results with animation
-        resultsSection.classList.remove('hidden');
+        resultsSection.classList.add('show');
         setTimeout(() => {
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
@@ -177,13 +131,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!currentVideoInfo) return;
         
         try {
-            loadingModal.classList.remove('hidden');
+            loadingModal.classList.add('show');
             showNotification('Preparando download...', 'info');
             
             // Redirect to ad first
             await redirectToAd();
             
-            // Start download (CORREÇÃO AQUI - adicionado /api/)
+            // Start download
             const downloadUrl = `${API_BASE_URL}/api/download?id=${currentVideoInfo.id}&format=${format.itag}`;
             window.open(downloadUrl, '_blank');
             
@@ -192,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Download error:', error);
             showNotification('Erro ao iniciar download', 'error');
         } finally {
-            loadingModal.classList.add('hidden');
+            loadingModal.classList.remove('show');
         }
     }
 
@@ -203,80 +157,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // YouTube Search Functions
-    function toggleSearchContainer() {
-        searchContainer.classList.toggle('hidden');
-        if (!searchContainer.classList.contains('hidden')) {
-            videoUrlInput.placeholder = "Ou cole o link do vídeo aqui...";
-            searchQuery.focus();
-        } else {
-            videoUrlInput.placeholder = "Cole o link do vídeo aqui...";
-        }
-    }
-
-    async function searchYouTube() {
-        const query = searchQuery.value.trim();
-        if (!query) return;
-        
-        try {
-            const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}`);
-            const data = await response.json();
-            
-            displaySearchResults(data.items || []);
-        } catch (error) {
-            console.error('Search error:', error);
-            showNotification('Erro ao pesquisar vídeos', 'error');
-        }
-    }
-
-    function displaySearchResults(items) {
-        searchResults.innerHTML = '';
-        
-        if (!items || items.length === 0) {
-            searchResults.innerHTML = '<p class="p-4 opacity-70">Nenhum resultado encontrado</p>';
-            searchResults.classList.remove('hidden');
-            return;
-        }
-        
-        items.slice(0, 5).forEach(item => {
-            const resultItem = document.createElement('div');
-            resultItem.className = 'search-item p-3 flex items-center';
-            
-            resultItem.innerHTML = `
-                <img src="${item.snippet.thumbnails.default.url}" 
-                     alt="${item.snippet.title}" 
-                     class="w-12 h-9 object-cover rounded mr-3">
-                <div class="flex-1">
-                    <h4 class="font-medium text-sm line-clamp-1">${item.snippet.title}</h4>
-                    <p class="text-xs opacity-70">${item.snippet.channelTitle}</p>
-                </div>
-                <i class="fas fa-chevron-right opacity-50"></i>
-            `;
-            
-            resultItem.addEventListener('click', () => {
-                videoUrlInput.value = `https://youtube.com/watch?v=${item.id.videoId}`;
-                searchResults.classList.add('hidden');
-                searchQuery.value = '';
-                processVideo();
-            });
-            
-            searchResults.appendChild(resultItem);
-        });
-        
-        searchResults.classList.remove('hidden');
-    }
-
-    // Close search results when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!searchContainer.contains(e.target) && e.target !== toggleSearch) {
-            searchResults.classList.add('hidden');
-        }
-    });
-
     // Notification system
     function showNotification(message, type = 'success') {
-        notification.className = `notification ${type === 'error' ? 'bg-red-600' : 
-                                type === 'info' ? 'bg-blue-600' : 'bg-green-600'} 
+        notification.className = `notification ${type === 'error' ? 'error' : 
+                                type === 'info' ? 'bg-blue-600' : 'success'} 
                                 px-6 py-3 rounded-lg shadow-lg`;
         notificationMessage.textContent = message;
         notification.classList.add('show');
