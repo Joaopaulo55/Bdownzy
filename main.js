@@ -138,9 +138,9 @@ document.addEventListener('DOMContentLoaded', function() {
             await redirectToAd();
             
             // Start download
-            const downloadUrl = `${API_BASE_URL}/api/download?id=${currentVideoInfo.id}&format=${format.itag}`;
-            window.open(downloadUrl, '_blank');
-            
+            const downloadUrl = format.url;
+window.open(downloadUrl, '_blank');
+
             showNotification('Download iniciado!', 'success');
         } catch (error) {
             console.error('Download error:', error);
