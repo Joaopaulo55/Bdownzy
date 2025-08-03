@@ -112,8 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             btn.innerHTML = `
-                <span>${format.quality} (${format.type.toUpperCase()})${format.size ? ` - ${format.size}` : ''}</span>
-                <i class="fas fa-download ml-2"></i>
+               <span>${format.quality} - ${format.label}${format.size ? ` - ${format.size}` : ''}</span>
+ <i class="fas fa-download ml-2"></i>
             `;
             
             btn.addEventListener('click', () => handleDownload(format));
